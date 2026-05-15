@@ -155,6 +155,10 @@ NSString* UITraitsClassString;
     }
     CGRect rect = [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     double height = rect.size.height;
+    if ( height < 100 ) {
+        // SPI 07/07/23 fix for ios 17 beta. The callback trigger a first time with height 44 => the page is not scrolled correctly
+        return;
+    }
 
     if (self.isWK) {
         double duration = [[note.userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
@@ -172,6 +176,10 @@ NSString* UITraitsClassString;
 {
     CGRect rect = [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     double height = rect.size.height;
+    if ( height < 100 ) {
+        // SPI 07/07/23 fix for ios 17 beta. The callback trigger a first time with height 44 => the page is not scrolled correctly
+        return;
+    }
 
     if (self.isWK) {
         [self resetScrollView];
@@ -224,20 +232,21 @@ NSString* UITraitsClassString;
     }
     NSLog(@"CDVIonicKeyboard: updating frame");
     // NOTE: to handle split screen correctly, the application's window bounds must be used as opposed to the screen's bounds.
-    CGRect f = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect f = [self.webView.window bounds];
+    // CGRect f = [[[[UIApplication sharedApplication] delegate] window] bounds];
     CGRect wf = self.webView.frame;
     switch (self.keyboardResizes) {
         case ResizeBody:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.body);",
-                            _paddingBottom, (int)f.size.height];
+                            _paddingBottom, (int)(f.size.height - wf.origin.y)];
             [self.commandDelegate evalJs:js];
             break;
         }
         case ResizeIonic:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.querySelector('ion-app'));",
-                            _paddingBottom, (int)f.size.height];
+                            _paddingBottom, (int)(f.size.height - wf.origin.y)];
             [self.commandDelegate evalJs:js];
             break;
         }
