@@ -224,7 +224,8 @@ NSString* UITraitsClassString;
     }
     NSLog(@"CDVIonicKeyboard: updating frame");
     // NOTE: to handle split screen correctly, the application's window bounds must be used as opposed to the screen's bounds.
-    CGRect f = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect f = [self.webView.window bounds];
+    // CGRect f = [[[[UIApplication sharedApplication] delegate] window] bounds];
     CGRect wf = self.webView.frame;
     switch (self.keyboardResizes) {
         case ResizeBody:
