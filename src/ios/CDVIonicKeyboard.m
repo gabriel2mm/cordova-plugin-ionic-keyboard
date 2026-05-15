@@ -155,6 +155,10 @@ NSString* UITraitsClassString;
     }
     CGRect rect = [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     double height = rect.size.height;
+    if ( height < 100 ) {
+        // SPI 07/07/23 fix for ios 17 beta. The callback trigger a first time with height 44 => the page is not scrolled correctly
+        return;
+    }
 
     if (self.isWK) {
         double duration = [[note.userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
@@ -172,6 +176,10 @@ NSString* UITraitsClassString;
 {
     CGRect rect = [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     double height = rect.size.height;
+    if ( height < 100 ) {
+        // SPI 07/07/23 fix for ios 17 beta. The callback trigger a first time with height 44 => the page is not scrolled correctly
+        return;
+    }
 
     if (self.isWK) {
         [self resetScrollView];
@@ -231,14 +239,14 @@ NSString* UITraitsClassString;
         case ResizeBody:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.body);",
-                            _paddingBottom, (int)f.size.height];
+                            _paddingBottom, (int)(f.size.height - wf.origin.y)];
             [self.commandDelegate evalJs:js];
             break;
         }
         case ResizeIonic:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.querySelector('ion-app'));",
-                            _paddingBottom, (int)f.size.height];
+                            _paddingBottom, (int)(f.size.height - wf.origin.y)];
             [self.commandDelegate evalJs:js];
             break;
         }
